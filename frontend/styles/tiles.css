@@ -1,0 +1,71 @@
+/* tiles.css generated @ 2008-02-15 17:19:19 */
+
+/* @group Tamme kastanje */
+.tile1 {
+	z-index: 70;
+	background-image: url(../images/tiles/loofboom_1.gif);
+	width: 128px;
+	height: 160px;
+}
+.tile1:hover {
+	opacity: .50;
+}
+/* @end */
+
+/* @group Plataan */
+.tile2 {
+	z-index: 70;
+	background-image: url(../images/tiles/loofboom_2.gif);
+	width: 128px;
+	height: 160px;
+}
+.tile2:hover {
+	opacity: .50;
+}
+/* @end */
+
+/* @group Bloem */
+.tile6 {
+	z-index: 10;
+	background-image: url(../images/tiles/bloem_1.gif);
+	width: 32px;
+	height: 32px;
+}
+/* @end */
+
+/* @group Lichtgroen gras */
+.tile4 {
+	z-index: 05;
+	background-image: url(../images/tiles/gras_1.gif);
+	width: 32px;
+	height: 32px;
+}
+/* @end */
+
+/* @group Donkergroen gras */
+.tile5 {
+	z-index: 05;
+	background-image: url(../images/tiles/gras_2.gif);
+	width: 32px;
+	height: 32px;
+}
+/* @end */
+
+/* @group Kleine Rots */
+.tile7 {
+	z-index: 25;
+	background-image: url(../images/tiles/rots_1.gif);
+	width: 32px;
+	height: 32px;
+}
+/* @end */
+
+/* @group Eikenboom */
+.tile3 {
+	z-index: 80;
+	background-image: url(../images/tiles/loofboom_3.gif);
+	width: 256px;
+	height: 320px;
+}
+.tile3:hover { opacity: .50; }
+/* @end */

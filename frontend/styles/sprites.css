@@ -1,0 +1,8 @@
+.char{
+	padding-top:32px;
+	background: url(../images/sprites/char.gif) no-repeat center top;
+}
+.Knight{
+	padding-top:32px;
+	background: url(../images/sprites/Knight.gif) no-repeat center top;
+}
