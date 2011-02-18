@@ -1,0 +1,27 @@
+/* 
+    Document   : yargo
+    Created on : Feb 17, 2011, 8:07:28 PM
+    Author     : hipska
+    Description: Purpose of the stylesheet follows.
+*/
+
+#world div {
+	position: absolute;
+	left: -512px;
+}
+
+#world div.sprite {
+	z-index: 50;
+	width: 32px;
+	height: 32px;
+	-webkit-transition: top 2s linear, left 2s linear;
+}
+
+#target {
+	background-image: url(../images/target.png);
+	width: 9px;
+	height: 9px;
+	left: -10px;
+	top: -10px;
+	z-index: 30;
+}
