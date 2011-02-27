@@ -18,6 +18,12 @@
 	-moz-transition: top 2s linear, left 2s linear;
 }
 
+#world div.keepout {
+	border: 1px dashed red;
+	height: 100%;
+	width: 100%;
+}
+
 #target {
 	background-image: url(../images/target.png);
 	width: 9px;
