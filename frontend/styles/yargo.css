@@ -5,7 +5,7 @@
     Description: Purpose of the stylesheet follows.
 */
 
-#world div {
+#world > div {
 	position: absolute;
 	left: -512px;
 }
@@ -19,7 +19,20 @@
 }
 
 #world div.keepout {
-	border: 1px dashed red;
+	background-size: 8px 8px;
+	background-image:
+		-webkit-gradient(
+			linear, 0 0, 100% 100%,
+			color-stop(0.1, red), color-stop(0.1, transparent),
+			color-stop(0.5, transparent), color-stop(0.5, red),
+			color-stop(0.6, red), color-stop(0.6, transparent),
+			to(transparent)),
+		-webkit-gradient(
+			linear, 100% 0, 0 100%,
+			color-stop(0.4, transparent), color-stop(0.4, red),
+			color-stop(0.5, red), color-stop(0.5, transparent),
+			color-stop(0.9, transparent), color-stop(0.9, red),
+			to(red));
 	height: 100%;
 	width: 100%;
 }
