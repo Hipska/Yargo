@@ -69,8 +69,9 @@ window.onload = function(){
 function startPathFinding(destination){
 	var directPath = myChar.pos.subtract(destination);
 	var nextPos = myChar.pos;
+	var loop = 0;
 	do{
-		directPath.setModulus(directPath.Modulus-(scale.Modulus/2));
+		directPath.setModulus(directPath.Modulus-(scale.Modulus*2/3));
 		nextPos = destination.add(directPath).snapTo(scale);
 		if(debug) console.log('NextPos: '+nextPos);
 		if(debug){
@@ -81,5 +82,15 @@ function startPathFinding(destination){
 			if(obstacles[nextPos.toString()]) breadcrumb.style['background-color'] = 'red';
 			$('world').appendChild(breadcrumb);
 		}
-	}while(!nextPos.equals(destination));
+		loop++;
+	}while(!nextPos.equals(destination) && loop < 1000);
+
+	if(debug) setTimeout( function(){
+		do{
+			var list = document.getElementsByClassName('nextPos');
+			for(var i=0; i<list.length; i++){
+				list[i].parentNode.removeChild(list[i]);
+			}
+		}while(list.length > 0);
+	}, 2000 );
 }
