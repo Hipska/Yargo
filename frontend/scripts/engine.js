@@ -70,8 +70,8 @@ function startPathFinding(destination){
 	var directPath = myChar.pos.subtract(destination);
 	var nextPos = myChar.pos;
 	do{
-		directPath = directPath.setModulus(directPath.Modulus-(scale.Modulus/2)).snapTo(scale);
-		nextPos = destination.add(directPath);
+		directPath.setModulus(directPath.Modulus-(scale.Modulus/2));
+		nextPos = destination.add(directPath).snapTo(scale);
 		if(debug) console.log('NextPos: '+nextPos);
 		if(debug){
 			var breadcrumb = document.createElement('div');
