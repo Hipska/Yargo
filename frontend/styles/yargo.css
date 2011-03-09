@@ -37,6 +37,17 @@
 	width: 100%;
 }
 
+#world div.nextPos{
+	background-color: green;
+	-webkit-border-radius: 16px;
+	-moz-border-radius: 16px;
+	border-radius: 16px;
+	margin: 8px;
+	width: 16px;
+	height: 16px;
+	z-index: 30;
+}
+
 #target {
 	background-image: url(../images/target.png);
 	width: 9px;
