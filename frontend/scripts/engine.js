@@ -3,7 +3,6 @@ var myID;
 var scale;
 var sprites = {}, obstacles = {};
 var debug = (window.console && true);
-var cleanBreadCrumbs;
 
 myID = 's1';
 scale = $V(32,32);
@@ -86,11 +85,12 @@ function startPathFinding(destination){
 		loop++;
 	}while(!nextPos.equals(destination) && loop < 1000);
 
-	if(debug) cleanBreadCrumbs = setInterval( function(){
-		var list = document.getElementsByClassName('nextPos');
-		if(list.length == 0) clearInterval(cleanBreadCrumbs);
-		for(var i=0; i<list.length; i++){
-			$('world').removeChild(list[i]);
-		}
-	}, 500 );
+	if(debug) setTimeout( function(){
+		do{
+			var list = document.getElementsByClassName('nextPos');
+			for(var i=0; i<list.length; i++){
+				list[i].parentNode.removeChild(list[i]);
+			}
+		}while(list.length > 0);
+	}, 2000 );
 }
