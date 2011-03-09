@@ -3,6 +3,7 @@ var myID;
 var scale;
 var sprites = {}, obstacles = {};
 var debug = (window.console && true);
+var cleanBreadCrumbs;
 
 myID = 's1';
 scale = $V(32,32);
@@ -69,8 +70,9 @@ window.onload = function(){
 function startPathFinding(destination){
 	var directPath = myChar.pos.subtract(destination);
 	var nextPos = myChar.pos;
+	var loop = 0;
 	do{
-		directPath.setModulus(directPath.Modulus-(scale.Modulus/2));
+		directPath.setModulus(directPath.Modulus-(scale.Modulus*2/3));
 		nextPos = destination.add(directPath).snapTo(scale);
 		if(debug) console.log('NextPos: '+nextPos);
 		if(debug){
@@ -81,5 +83,14 @@ function startPathFinding(destination){
 			if(obstacles[nextPos.toString()]) breadcrumb.style['background-color'] = 'red';
 			$('world').appendChild(breadcrumb);
 		}
-	}while(!nextPos.equals(destination));
+		loop++;
+	}while(!nextPos.equals(destination) && loop < 1000);
+
+	if(debug) cleanBreadCrumbs = setInterval( function(){
+		var list = document.getElementsByClassName('nextPos');
+		if(list.length == 0) clearInterval(cleanBreadCrumbs);
+		for(var i=0; i<list.length; i++){
+			$('world').removeChild(list[i]);
+		}
+	}, 500 );
 }
