@@ -9,8 +9,19 @@ myID = 's1';
 scale = $V(32,32);
 obstacles = new VectorList();
 
+/**
+ * Find element in DOM tree by ID
+ */
 function $(id){
 	return document.getElementById(id);
+}
+
+/**
+ * Delete element in DOM tree by ID
+ */
+function d$(id){
+	var node = $(id);
+	node.parentNode.removeChild(node);
 }
 
 window.onload = function(){
@@ -73,26 +84,25 @@ function startPathFinding(destination){
 	var nextPos = myChar.pos;
 	var loop = 0;
 	do{
-		directPath.setModulus(directPath.Modulus-(scale.Modulus*2/3));
+		directPath.setModulus(directPath.Modulus-Math.min(scale.X, scale.Y));
 		nextPos = destination.add(directPath).snapTo(scale);
 		if(debug) console.log('NextPos: '+nextPos);
-		if(debug){
-			var breadcrumb = document.createElement('div');
-			breadcrumb.style.left = nextPos.X + 'px';
-			breadcrumb.style.top  = nextPos.Y + 'px';
-			breadcrumb.className = 'nextPos';
-			if(obstacles[nextPos.toString()]) breadcrumb.style['background-color'] = 'red';
-			$('world').appendChild(breadcrumb);
-		}
+		if(debug) createBreadcrumb(nextPos);
 		loop++;
 	}while(!nextPos.equals(destination) && loop < 1000);
 
-	if(debug) setTimeout( function(){
-		do{
-			var list = document.getElementsByClassName('nextPos');
-			for(var i=0; i<list.length; i++){
-				list[i].parentNode.removeChild(list[i]);
-			}
-		}while(list.length > 0);
-	}, 2000 );
+	return nextPos.equals(destination);
+}
+
+function createBreadcrumb(pos){
+	var breadcrumb = document.createElement('div');
+	breadcrumb.id = 'bc'+Math.random();
+	breadcrumb.style.left = pos.X + 'px';
+	breadcrumb.style.top  = pos.Y + 'px';
+	breadcrumb.className = 'nextPos';
+	if(obstacles.contains(pos)) breadcrumb.style['background-color'] = 'red';
+
+	$('world').appendChild(breadcrumb);
+
+	setTimeout( function(){breadcrumb.parentNode.removeChild(breadcrumb)}, 2000 );
 }
