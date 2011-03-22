@@ -1,11 +1,13 @@
 var target,myChar;
 var myID;
 var scale;
-var sprites = {}, obstacles = {};
+var obstacles;
+var sprites = {};
 var debug = (window.console && true);
 
 myID = 's1';
 scale = $V(32,32);
+obstacles = new VectorList();
 
 function $(id){
 	return document.getElementById(id);
@@ -26,12 +28,12 @@ window.onload = function(){
 		v = Vector2D.Zero;
 		do{
 			v = v.addXY(obj.offsetLeft, obj.offsetTop);
-		}while(obj = obj.offsetParent);
+		}while((obj = obj.offsetParent));
 
-		if(debug) console.info('Keepout area:',v,width,height);
+		if(debug) console.info('Keepout area:'+v+' w:'+width+' h:'+height);
 
 		for(var x=0; x<width; x+=scale.X) for(var y=0; y<height; y+=scale.Y){
-			obstacles[ v.addXY(x,y).toString() ] = Infinity;
+			obstacles.add( v.addXY(x,y), Infinity );
 		}
 	}
 
