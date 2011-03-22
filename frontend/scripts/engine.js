@@ -59,20 +59,20 @@ window.onload = function(){
 			mouse.clientY + window.scrollY - scale.Y/2
 		).snapTo(scale);
 
-		var directPath = myChar.pos.subtract(destination);
+		if(myChar.pos.equals(destination)) return;
 
 		if(debug) console.log( 'Current: ' + myChar.pos );
 		if(debug) console.log( 'Destination: ' + destination );
-		if(debug) console.log( 'Path: ' + directPath.inspect() );
-
-		startPathFinding(destination);
+		if(debug) console.log( 'Path: ' + myChar.pos.subtract(destination).inspect() );
 
 		target.style.left	= (destination.X+11) + 'px';
 		target.style.top	= (destination.Y+11) + 'px';
 
-		myChar.style.left	= destination.X + 'px';
-		myChar.style.top	= destination.Y + 'px';
-		myChar.pos = destination;
+		if(startPathFinding(destination)){
+			myChar.style.left	= destination.X + 'px';
+			myChar.style.top	= destination.Y + 'px';
+			myChar.pos = destination;
+		}
 	}
 }
 
