@@ -61,14 +61,14 @@ window.onload = function(){
 
 		if(myChar.pos.equals(destination)) return;
 
-		if(debug) console.log( 'Current: ' + myChar.pos );
-		if(debug) console.log( 'Destination: ' + destination );
-		if(debug) console.log( 'Path: ' + myChar.pos.subtract(destination).inspect() );
+		if(debug) console.log( 'Current: ', myChar.pos );
+		if(debug) console.log( 'Destination: ', destination );
+		if(debug) console.log( 'Path: ', myChar.pos.subtract(destination).inspect() );
 
 		target.style.left	= (destination.X+11) + 'px';
 		target.style.top	= (destination.Y+11) + 'px';
 
-		if(startPathFinding(destination)){
+		if(directPath(destination)){
 			myChar.style.left	= destination.X + 'px';
 			myChar.style.top	= destination.Y + 'px';
 			myChar.pos = destination;
@@ -79,28 +79,29 @@ window.onload = function(){
 /**
  *
  */
-function startPathFinding(destination){
+function directPath(destination){
 	var directPath = myChar.pos.subtract(destination);
 	var nextPos = myChar.pos;
 	var loop = 0;
 	do{
 		directPath.setModulus(directPath.Modulus-Math.min(scale.X, scale.Y));
 		nextPos = destination.add(directPath).snapTo(scale);
-		if(debug) console.log('NextPos: '+nextPos);
-		if(debug) createBreadcrumb(nextPos);
+		if(debug) createBreadcrumb(nextPos, 'green');
 		loop++;
 	}while(!nextPos.equals(destination) && loop < 1000);
 
 	return nextPos.equals(destination);
 }
 
-function createBreadcrumb(pos){
+function createBreadcrumb(pos, color){
+
 	var breadcrumb = document.createElement('div');
 	breadcrumb.id = 'bc'+Math.random();
 	breadcrumb.style.left = pos.X + 'px';
 	breadcrumb.style.top  = pos.Y + 'px';
 	breadcrumb.className = 'nextPos';
 	if(obstacles.contains(pos)) breadcrumb.style['background-color'] = 'red';
+	else if(color) breadcrumb.style['background-color'] = color;
 
 	$('world').appendChild(breadcrumb);
 
