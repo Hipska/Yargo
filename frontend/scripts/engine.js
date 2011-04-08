@@ -2,6 +2,7 @@ var target,myChar;
 var myID;
 var scale;
 var obstacles;
+var pathfinding;
 var sprites = {};
 var debug = (window.console && true);
 
@@ -49,6 +50,7 @@ window.onload = function(){
 	}
 
 	myChar.pos = $V( myChar.offsetLeft, myChar.offsetTop );
+	pathfinding = new PathFinder(obstacles, scale);
 
 	$('world').onclick = function(mouse){
 
@@ -63,12 +65,16 @@ window.onload = function(){
 
 		if(debug) console.log( 'Current: ', myChar.pos );
 		if(debug) console.log( 'Destination: ', destination );
-		if(debug) console.log( 'Path: ', myChar.pos.subtract(destination).inspect() );
 
-		target.style.left	= (destination.X+11) + 'px';
-		target.style.top	= (destination.Y+11) + 'px';
+		// calculate path
+		var path = pathfinding.calculate(myChar.pos, destination);
+		if(debug) console.log( 'Path: (steps) ', path.length );
 
-		if(directPath(destination)){
+		if(path){
+
+			target.style.left	= (destination.X+11) + 'px';
+			target.style.top	= (destination.Y+11) + 'px';
+
 			myChar.style.left	= destination.X + 'px';
 			myChar.style.top	= destination.Y + 'px';
 			myChar.pos = destination;
