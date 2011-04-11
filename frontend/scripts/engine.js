@@ -29,6 +29,7 @@ window.onload = function(){
 	myChar = $(myID);
 	target = $('target');
 
+	// collect forbidden regions
 	var obj, list = document.getElementsByClassName('keepout');
 	var width, height, v;
 	for(var i=0; i<list.length; i++){
@@ -49,7 +50,10 @@ window.onload = function(){
 		}
 	}
 
+	// load current position
 	myChar.pos = $V( myChar.offsetLeft, myChar.offsetTop );
+
+	// start pathfinding
 	pathfinding = new PathFinder(obstacles, scale);
 
 	$('world').onclick = function(mouse){
@@ -63,14 +67,15 @@ window.onload = function(){
 
 		if(myChar.pos.equals(destination)) return;
 
-		if(debug) console.log( 'Current: ', myChar.pos );
-		if(debug) console.log( 'Destination: ', destination );
+		if(debug) console.log( 'Current:', myChar.pos );
+		if(debug) console.log( 'Destination:', destination );
 
 		// calculate path
 		var path = pathfinding.calculate(myChar.pos, destination);
-		if(debug) console.log( 'Path: (steps) ', path.length );
-
+		
+		// path found
 		if(path){
+			if(debug) console.log( 'Path: (steps)', path.length );
 
 			target.style.left	= (destination.X+11) + 'px';
 			target.style.top	= (destination.Y+11) + 'px';
