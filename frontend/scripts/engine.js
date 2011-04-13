@@ -3,7 +3,7 @@ var myID;
 var scale;
 var obstacles;
 var pathfinding;
-var sprites = {};
+var workers = {}, sprites = {};
 var debug = (window.console && true);
 
 myID = 's1';
@@ -56,6 +56,13 @@ window.onload = function(){
 	// start pathfinding
 	pathfinding = new PathFinder(obstacles, scale);
 
+	// start new worker for the movement
+	workers.movement = new Worker('scripts/workers/movement.js');
+	workers.movement.onmessage = function(evt){
+		moveSprite(evt.data);
+	}
+	workers.movement.postMessage(myChar.pos);
+
 	$('world').onclick = function(mouse){
 
 		if(mouse.target.className == 'keepout') return;
@@ -77,14 +84,15 @@ window.onload = function(){
 		if(path){
 			if(debug) console.log( 'Path: (steps)', path.length );
 
+			workers.movement.postMessage(path);
+
 			target.style.left	= (destination.X+11) + 'px';
 			target.style.top	= (destination.Y+11) + 'px';
-
-			myChar.style.left	= destination.X + 'px';
-			myChar.style.top	= destination.Y + 'px';
-			myChar.pos = destination;
 		}
 	}
+
+	myChar.addEventListener('webkitTransitionEnd', function(evt){ if(debug) console.log(evt); }, false);
+
 }
 
 /**
@@ -117,4 +125,16 @@ function createBreadcrumb(pos, color){
 	$('world').appendChild(breadcrumb);
 
 	setTimeout( function(){breadcrumb.parentNode.removeChild(breadcrumb)}, 2000 );
+}
+
+function moveSprite(step){
+	if(debug) console.log('Step:',step);
+
+	// set new position and duration to character
+	myChar.style.left	= step.position.X + 'px';
+	myChar.style.top	= step.position.Y + 'px';
+	myChar.style['-webkit-transition-duration'] = step.duration + 'ms';
+
+	// save new position for later use
+	myChar.pos = $V(step.position.X, step.position.Y);
 }
