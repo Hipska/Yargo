@@ -33,7 +33,7 @@ PathFinder.prototype = {
 				do {
 					if(debug) createBreadcrumb(path.position,'green');
 					route.push(path.position);
-				} while(path = path.parent);
+				} while( (path = path.parent) );
 
 				route.reverse();
 
@@ -72,7 +72,7 @@ PathFinder.prototype = {
 		var i = 0;
 		var state = {};
 
-		if(debug) createBreadcrumb(path.position);
+		if(debug) createBreadcrumb(path.position, 'orange');
 
 		if(this.closedList.contains(path.position))
 			return;
