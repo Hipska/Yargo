@@ -1,7 +1,7 @@
 
 function PathFinder(obstacles, scale){
 	this.openList = new Array();
-	this.openListSize = 25;
+	this.openListSize = 50;
 
 	this.closedList = obstacles || new VectorList();
 
