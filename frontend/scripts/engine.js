@@ -59,6 +59,7 @@ window.onload = function(){
 	// start new worker for the movement
 	workers.movement = new Worker('scripts/workers/movement.js');
 	workers.movement.onmessage = function(evt){
+		evt.data.position = $V(evt.data.position.X, evt.data.position.Y);
 		moveSprite(evt.data);
 	}
 	workers.movement.postMessage(myChar.pos);
@@ -124,7 +125,7 @@ function createBreadcrumb(pos, color){
 
 	$('world').appendChild(breadcrumb);
 
-	setTimeout( function(){breadcrumb.parentNode.removeChild(breadcrumb)}, 2000 );
+	setTimeout( function(){breadcrumb.parentNode.removeChild(breadcrumb)}, 5555 );
 }
 
 function moveSprite(step){
@@ -136,5 +137,5 @@ function moveSprite(step){
 	myChar.style['-webkit-transition-duration'] = step.duration + 'ms';
 
 	// save new position for later use
-	myChar.pos = $V(step.position.X, step.position.Y);
+	myChar.pos = step.position;
 }
