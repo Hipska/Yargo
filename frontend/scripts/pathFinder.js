@@ -25,22 +25,15 @@ PathFinder.prototype = {
 
 			++this.iterations;
 
-			var path = this.openList.shift().path;
+			var path = this.openList.shift();
 
-			if(path.position.equals(this.goal)){
-				var route = new Array();
+			if(path.lastStep().equals(this.goal)){
+				
+				if(debug) path.steps.forEach( function(position){createBreadcrumb(position,'green');} );
+				return path.steps;
 
-				do {
-					if(debug) createBreadcrumb(path.position,'green');
-					route.push(path.position);
-				} while( (path = path.parent) );
-
-				route.reverse();
-
-				return route;
-
-			}else
-				this.expand(path);
+			}else this.expand(path);
+			
 		}
 
 		return null;
@@ -50,60 +43,90 @@ PathFinder.prototype = {
 
 		// calculate the neighbour positions of current position
 		var neighbours = [
-			path.addStep($V(path.position.X - this.scale.X, path.position.Y - this.scale.Y)),	// up-left
-			path.addStep($V(path.position.X - this.scale.X, path.position.Y + this.scale.Y)),	// down-left
-			path.addStep($V(path.position.X + this.scale.X, path.position.Y + this.scale.Y)),	// down-right
-			path.addStep($V(path.position.X + this.scale.X, path.position.Y - this.scale.Y)),	// up-right
+			path.expand( -this.scale.X, -this.scale.Y),	// up-left
+			path.expand( -this.scale.X,  this.scale.Y),	// down-left
+			path.expand(  this.scale.X,  this.scale.Y),	// down-right
+			path.expand(  this.scale.X, -this.scale.Y),	// up-right
 
-			path.addStep($V(path.position.X, path.position.Y - this.scale.Y)),	// up
-			path.addStep($V(path.position.X + this.scale.X, path.position.Y)),	// right
-			path.addStep($V(path.position.X, path.position.Y + this.scale.Y)),	// down
-			path.addStep($V(path.position.X - this.scale.X, path.position.Y))	// left
+			path.expand( 0, -this.scale.Y ),	// up
+			path.expand( this.scale.X, 0 ),	// right
+			path.expand( 0, this.scale.Y ),	// down
+			path.expand( -this.scale.X, 0 )	// left
 		];
 
 		// add new possible positions to openList
-		for(var i = 0; i < 8; ++i)
-			if(neighbours[i].position.X >= 0 && neighbours[i].position.Y >= 0 ) // && !this.closedList.contains(neighbours[i].position))
+		for(var i = 0; i < 8; ++i){
+			var position = neighbours[i].lastStep();
+			if(position.X >= 0 && position.Y >= 0 && !path.stepsHash.contains(position)){
+				neighbours[i].cost = neighbours[i].stepCost + position.distanceFrom(this.goal);
 				this.addToOpenList(neighbours[i]);
+			}
+		}
 	},
 
 	addToOpenList: function(path){
 
 		var i = 0;
-		var state = {};
 
-		if(debug) createBreadcrumb(path.position, 'orange');
+		if(debug) createBreadcrumb(path.lastStep(), 'orange');
 
-		if(this.closedList.contains(path.position))
+		if(this.closedList.contains(path.lastStep()))
 			return;
-
-		state.value = path.cost + this.goal.distanceFrom(path.position);
-		state.path = path;
 
 		while(i < this.openList.length) {
 
-			if(this.openList[i].value > state.value)
+			if(this.openList[i].cost > path.cost)
 				break;
 
 			++i;
 		}
 
 		if(i < this.openListSize)
-			this.openList.splice(i, -1, state);
+			this.openList.splice(i, -1, path);
 	}
 }
 
-function Path(position, cost, parent){
-	
-	this.position = position || null;
+function Path(position, cost){
 
-	this.cost = cost || 0;
+	this.steps = new Array();
+	this.stepsHash = new VectorList();
 
-	this.parent = parent || null;
+	this.stepCost = cost || 0;
+	this.cost = Infinity;
+
+	if(position) this.addStep(position);
 }
 
 Path.prototype = {
-	addStep: function(position){
-		return new Path(position, this.cost + this.position.distanceFrom(position), this);
+	expand: function(x,y){
+		var newPath = this.clone();
+		var lastStep = this.lastStep();
+		var newStep = lastStep.addXY(x,y);
+		newPath.addStep(newStep, lastStep.distanceFrom(newStep));
+		return newPath;
+	},
+
+	addStep: function(position, stepCost){
+		if(stepCost) this.stepsCost += stepCost;
+
+		this.steps.push(position);
+		this.stepsHash.add(position);
+	},
+
+	lastStep: function(){
+		return this.steps[this.steps.length-1];
+	},
+
+	clone: function(){
+		var clone = new Path();
+
+		// copy variables
+		clone.stepsCost = this.stepCost;
+		clone.steps = this.steps.slice();
+
+		// re-build hash
+		clone.steps.forEach(function(pos){clone.stepsHash.add(pos);});
+
+		return clone;
 	}
 }
