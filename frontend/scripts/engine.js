@@ -131,11 +131,27 @@ function createBreadcrumb(pos, color){
 function moveSprite(step){
 	if(debug) console.log('Step:',step);
 
-	// set new position and duration to character
-	myChar.style.left	= step.position.X + 'px';
-	myChar.style.top	= step.position.Y + 'px';
-	myChar.style['-webkit-transition-duration'] = step.duration + 'ms';
+	if(step.position.equals(myChar.pos)){
+		// revert to static character
+		myChar.className = "sprite char";
+	}else{
+		// set new position and duration to character
+		myChar.style.left	= step.position.X + 'px';
+		myChar.style.top	= step.position.Y + 'px';
+		myChar.style['-webkit-transition-duration'] = step.duration + 'ms';
 
-	// save new position for later use
-	myChar.pos = step.position;
+		var angle = step.position.subtract(myChar.pos).Angle;
+		if( angle>=Math.PI/4 && angle<Math.PI*3/4 ){
+			myChar.className = "sprite char down";
+		}else if( angle>=Math.PI*3/4 || angle<-Math.PI*3/4 ){
+			myChar.className = "sprite char left";
+		}else if( angle>=-Math.PI*3/4 && angle<-Math.PI/4 ){
+			myChar.className = "sprite char up";
+		}else if( angle>=-Math.PI/4 && angle<Math.PI/4 ){
+			myChar.className = "sprite char right";
+		}
+		
+		// save new position for later use
+		myChar.pos = step.position;
+	}
 }

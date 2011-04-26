@@ -21,6 +21,8 @@ function addSteps(evt){
 }
 
 function nextStep(){
+	var step = {duration:Infinity,position:currentPos};
+
 	// check if the end of the path is reached
 	if(path.length == 0){
 
@@ -28,10 +30,11 @@ function nextStep(){
 		clearTimeout(timer);
 		timer = null;
 
+		// send to parent thread to display this step
+		postMessage(step);
+
 	// proceed to next step
 	}else{
-
-		var step = {};
 
 		// get the first position from the path
 		var pos = path.shift();
