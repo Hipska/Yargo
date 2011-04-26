@@ -17,7 +17,7 @@ PathFinder.prototype = {
 		this.goal = goal;
 
 		this.openList = new Array();
-		this.addToOpenList(this.start);
+		this.expand(this.start);
 
 		this.iterations = 0;
 
@@ -28,7 +28,9 @@ PathFinder.prototype = {
 			var path = this.openList.shift();
 
 			if(path.lastStep().equals(this.goal)){
-				
+
+				path.steps.shift();
+
 				if(debug) path.steps.forEach( function(position){createBreadcrumb(position,'green');} );
 				return path.steps;
 
