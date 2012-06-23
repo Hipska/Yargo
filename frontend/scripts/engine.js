@@ -1,20 +1,35 @@
 var target,myChar;
 var myID;
 var scale;
-var sprites = {}, obstacles = {};
+var obstacles;
+var pathfinding;
+var workers = {}, sprites = {};
 var debug = (window.console && true);
 
 myID = 's1';
 scale = $V(32,32);
+obstacles = new VectorList();
 
+/**
+ * Find element in DOM tree by ID
+ */
 function $(id){
 	return document.getElementById(id);
+}
+
+/**
+ * Delete element in DOM tree by ID
+ */
+function d$(id){
+	var node = $(id);
+	node.parentNode.removeChild(node);
 }
 
 window.onload = function(){
 	myChar = $(myID);
 	target = $('target');
 
+	// collect forbidden regions
 	var obj, list = document.getElementsByClassName('keepout');
 	var width, height, v;
 	for(var i=0; i<list.length; i++){
@@ -26,16 +41,28 @@ window.onload = function(){
 		v = Vector2D.Zero;
 		do{
 			v = v.addXY(obj.offsetLeft, obj.offsetTop);
-		}while(obj = obj.offsetParent);
+		}while((obj = obj.offsetParent));
 
-		if(debug) console.info('Keepout area:',v,width,height);
+		if(debug) console.info('Keepout area:'+v+' w:'+width+' h:'+height);
 
 		for(var x=0; x<width; x+=scale.X) for(var y=0; y<height; y+=scale.Y){
-			obstacles[ v.addXY(x,y).toString() ] = Infinity;
+			obstacles.add( v.addXY(x,y), Infinity );
 		}
 	}
 
+	// load current position
 	myChar.pos = $V( myChar.offsetLeft, myChar.offsetTop );
+
+	// start pathfinding
+	pathfinding = new PathFinder(obstacles, scale);
+
+	// start new worker for the movement
+	workers.movement = new Worker('scripts/workers/movement.js');
+	workers.movement.onmessage = function(evt){
+		evt.data.position = $V(evt.data.position.X, evt.data.position.Y);
+		moveSprite(evt.data);
+	}
+	workers.movement.postMessage(myChar.pos);
 
 	$('world').onclick = function(mouse){
 
@@ -46,51 +73,86 @@ window.onload = function(){
 			mouse.clientY + window.scrollY - scale.Y/2
 		).snapTo(scale);
 
-		var directPath = myChar.pos.subtract(destination);
+		if(myChar.pos.equals(destination)) return;
 
-		if(debug) console.log( 'Current: ' + myChar.pos );
-		if(debug) console.log( 'Destination: ' + destination );
-		if(debug) console.log( 'Path: ' + directPath.inspect() );
+		if(debug) console.log( 'Current:', myChar.pos );
+		if(debug) console.log( 'Destination:', destination );
 
-		startPathFinding(destination);
+		// calculate path
+		var path = pathfinding.calculate(myChar.pos, destination);
+		
+		// path found
+		if(path){
+			if(debug) console.log( 'Path: (steps)', path.length );
 
-		target.style.left	= (destination.X+11) + 'px';
-		target.style.top	= (destination.Y+11) + 'px';
+			workers.movement.postMessage(path);
 
-		myChar.style.left	= destination.X + 'px';
-		myChar.style.top	= destination.Y + 'px';
-		myChar.pos = destination;
+			target.style.left	= (destination.X+11) + 'px';
+			target.style.top	= (destination.Y+11) + 'px';
+		}
 	}
+
+	myChar.addEventListener('webkitTransitionEnd', function(evt){ if(debug) console.log(evt); }, false);
+
 }
 
 /**
  *
  */
-function startPathFinding(destination){
+function directPath(destination){
 	var directPath = myChar.pos.subtract(destination);
 	var nextPos = myChar.pos;
 	var loop = 0;
 	do{
-		directPath.setModulus(directPath.Modulus-(scale.Modulus*2/3));
+
+		directPath.setModulus(directPath.Modulus-Math.min(scale.X, scale.Y));
 		nextPos = destination.add(directPath).snapTo(scale);
-		if(debug) console.log('NextPos: '+nextPos);
-		if(debug){
-			var breadcrumb = document.createElement('div');
-			breadcrumb.style.left = nextPos.X + 'px';
-			breadcrumb.style.top  = nextPos.Y + 'px';
-			breadcrumb.className = 'nextPos';
-			if(obstacles[nextPos.toString()]) breadcrumb.style['background-color'] = 'red';
-			$('world').appendChild(breadcrumb);
-		}
+		if(debug) createBreadcrumb(nextPos, 'green');
 		loop++;
 	}while(!nextPos.equals(destination) && loop < 1000);
 
-	if(debug) setTimeout( function(){
-		do{
-			var list = document.getElementsByClassName('nextPos');
-			for(var i=0; i<list.length; i++){
-				list[i].parentNode.removeChild(list[i]);
-			}
-		}while(list.length > 0);
-	}, 2000 );
+	return nextPos.equals(destination);
+}
+
+function createBreadcrumb(pos, color){
+
+	var breadcrumb = document.createElement('div');
+	breadcrumb.id = 'bc'+Math.random();
+	breadcrumb.style.left = pos.X + 'px';
+	breadcrumb.style.top  = pos.Y + 'px';
+	breadcrumb.className = 'nextPos';
+	if(obstacles.contains(pos)) breadcrumb.style['background-color'] = 'red';
+	else if(color) breadcrumb.style['background-color'] = color;
+
+	$('world').appendChild(breadcrumb);
+
+	setTimeout( function(){breadcrumb.parentNode.removeChild(breadcrumb)}, 5555 );
+}
+
+function moveSprite(step){
+	if(debug) console.log('Step:',step);
+
+	if(step.position.equals(myChar.pos)){
+		// revert to static character
+		myChar.className = "sprite char";
+	}else{
+		// set new position and duration to character
+		myChar.style.left	= step.position.X + 'px';
+		myChar.style.top	= step.position.Y + 'px';
+		myChar.style['-webkit-transition-duration'] = step.duration + 'ms';
+
+		var angle = step.position.subtract(myChar.pos).Angle;
+		if( angle>=Math.PI/4 && angle<Math.PI*3/4 ){
+			myChar.className = "sprite char down";
+		}else if( angle>=Math.PI*3/4 || angle<-Math.PI*3/4 ){
+			myChar.className = "sprite char left";
+		}else if( angle>=-Math.PI*3/4 && angle<-Math.PI/4 ){
+			myChar.className = "sprite char up";
+		}else if( angle>=-Math.PI/4 && angle<Math.PI/4 ){
+			myChar.className = "sprite char right";
+		}
+		
+		// save new position for later use
+		myChar.pos = step.position;
+	}
 }

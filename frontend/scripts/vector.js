@@ -193,7 +193,7 @@ Vector2D.prototype = {
 
 	// Returns a string representation of the vector
 	inspect: function() {
-		return '[Vector2D] X:'+this.X + ' Y:'+this.Y + ' Modulus:'+this.Modulus + ' Angle:'+((this.Angle/Math.PI)*180);
+		return '[Vector2D] X:'+this.X + ' Y:'+this.Y + ' Modulus:'+this.Modulus + ' Angle:'+((this.Angle/Math.PI)*180)+'°';
 	},
 
 	toString: function() {
@@ -234,10 +234,11 @@ Vector2D.create = Vector2D.createXY;
 Vector2D.Xaxis = Vector2D.createXY(1,0);
 Vector2D.Yaxis = Vector2D.createXY(0,1);
 Vector2D.Zero = Vector2D.createXY(0,0);
+Vector2D.Ones = Vector2D.createXY(1, 1);
 
 // Random vector
 Vector2D.Random = function(v) {
-	if(typeof v == 'undefined') v = Vector2D.createXY(1,1);
+	if(typeof v == 'undefined') v = Vector2D.Ones;
 	var x = Math.random() * v.X;
 	var y = Math.random() * v.Y;
 	return Vector2D.createXY(x,y);
@@ -245,3 +246,17 @@ Vector2D.Random = function(v) {
 
 // Utility functions
 var $V = Vector2D.create;
+
+function VectorList(){ };
+VectorList.prototype = {
+	contains: function(vector){
+		var index = vector.toString();
+		if(this[index]) return this[index];
+		else return false;
+	},
+
+	add: function(vector, value){
+		var index = vector.toString();
+		this[index] = value || vector;
+	}
+};
